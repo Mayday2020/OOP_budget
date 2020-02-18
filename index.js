@@ -26,20 +26,19 @@ let incomeItems = document.querySelectorAll('.income-items'),               // �
 
 
 class AppData {
-    constructor(income, incomeMonth, addIncome, expenses, addExpenses, deposit, percentDeposit,
-         moneyDeposit, budget,budgetDay, budgetMonth, expensesMonth){
-        this.income = income || {};                 // Подработка
-        this.incomeMonth = incomeMonth;             // Шабашка за месяц
-        this.addIncome = addIncome || [];           // Доп. доходы
-        this.expenses = expenses || {};             // Обяз. расходы
-        this.addExpenses = addExpenses || [];       // Возможные расходы
-        this.deposit = deposit || false;            // Депозит
-        this.percentDeposit = percentDeposit;       // Процент депозита
-        this.moneyDeposit = moneyDeposit;           // Сумма депозита
-        this.budget = budget;                       // Доход в месяц
-        this.budgetDay = budgetDay;                 // Доход - расход в день
-        this.budgetMonth = budgetMonth;             // Доход - расход в месяц
-        this.expensesMonth = expensesMonth;         // Расход в месяц 
+    constructor(){
+        this.income = {};                 // Подработка
+        this.incomeMonth = 0;             // Шабашка за месяц
+        this.addIncome = [];           // Доп. доходы
+        this.expenses = {};             // Обяз. расходы
+        this.addExpenses = [];       // Возможные расходы
+        this.deposit = false;            // Депозит
+        this.percentDeposit = 0;       // Процент депозита
+        this.moneyDeposit = 0;           // Сумма депозита
+        this.budget = 0;                       // Доход в месяц
+        this.budgetDay = 0;                 // Доход - расход в день
+        this.budgetMonth = 0;             // Доход - расход в месяц
+        this.expensesMonth = 0;         // Расход в месяц 
     }
             //  Проверка на число
 
@@ -47,7 +46,7 @@ class AppData {
         return !isNaN(parseFloat(n)) && isFinite(n);
     }
     start() {
-        console.log(this);
+        this.theButton();
         this.budget = +salaryAmount.value;
         this.getExpenses();
         this.getIncome();
@@ -57,8 +56,9 @@ class AppData {
         this.getAddIncome();
         this.getBudget();
         this.showResult();
+        this.getTargetMonth();
+        this.getStatusIncome();
         this.blocked();
-        console.log(typeof(this.budget));
     }
     showResult() {
         budgetMonthValue.value = this.budgetMonth;
@@ -68,7 +68,7 @@ class AppData {
         additionalIncomeValue.value = this.addIncome.join(', ');
         targetMonthValue.value = Math.ceil(this.getTargetMonth());
         incomePeriodValue.value = this.calcPeriod();
-        periodSelect.addEventListener('input', this.start.bind(appData));
+        
     }
     blocked() {
         document.querySelectorAll('input[type=text]').forEach((item) => {
@@ -105,8 +105,8 @@ class AppData {
     getExpenses() {
         const _this = this;
         expensesItems.forEach((item) => {
-            let itemExpenses = item.querySelector('.expenses-title').value;
-            let cashExpenses = item.querySelector('.expenses-amount').value;
+            const itemExpenses = item.querySelector('.expenses-title').value;
+            const cashExpenses = item.querySelector('.expenses-amount').value;
             if(itemExpenses !== '' && cashExpenses !== '') {
                 _this.expenses[itemExpenses] = cashExpenses;
             }
@@ -115,15 +115,15 @@ class AppData {
     getIncome() {
         const _this = this;
         incomeItems.forEach((item) => {
-            let itemIncome = item.querySelector('.income-title').value;
-            let cashIncome = item.querySelector('.income-amount').value;
+            const itemIncome = item.querySelector('.income-title').value;
+            const cashIncome = item.querySelector('.income-amount').value;
             if(itemIncome !== '' && cashIncome !== '') {
                 _this.income[itemIncome] = cashIncome;
             }           
         });
     }
     getAddExpenses() {
-        let addExpenses = additionalExpensesItem.value.split(',');
+        const addExpenses = additionalExpensesItem.value.split(',');
         const _this = this;
         addExpenses.forEach((item) => {
             item = item.trim();
@@ -196,37 +196,34 @@ class AppData {
             startButton.disabled = false;
         } 
     }
+    getEventListeners(){
+        startButton.addEventListener('click', this.start.bind(this));
+        salaryAmount.addEventListener('input', this.theButton.bind(this));
+        periodSelect.addEventListener('input', this.stepPeriod.bind(this));
+        expensesPlus.addEventListener('click', this.addExpensesBlock.bind(this));
+        incomePlus.addEventListener('click', this.addIncomeBlock.bind(this));
+        cancel.addEventListener('click', this.reset.bind(this));
+        periodSelect.addEventListener('input', this.start.bind(this));
+    }
+    stringExpenses() {
+        let itemsExpenses = '';
+        for (let i = 0; i < this.addExpenses.length; i++) {
+            let unitExpenses = this.addExpenses[i] + ', ';
+            const itemUppercase = unitExpenses.charAt(0).toUpperCase();
+            unitExpenses = unitExpenses.substring(1, unitExpenses.length);
+            unitExpenses = itemUppercase + unitExpenses;
+            itemsExpenses += unitExpenses;
+        }
+        return itemsExpenses;
+    }
 }
 
 const appData = new AppData();
 
-appData.theButton();
-startButton.addEventListener('click', appData.start.bind(appData));
-salaryAmount.addEventListener('input', appData.theButton.bind(appData));
-periodSelect.addEventListener('input', appData.stepPeriod.bind(appData));
-expensesPlus.addEventListener('click', appData.addExpensesBlock.bind(appData));
-incomePlus.addEventListener('click', appData.addIncomeBlock.bind(appData));
-cancel.addEventListener('click', appData.reset.bind(appData));
 
-        //  Срок достижение цели
-appData.getTargetMonth();
+appData.getEventListeners();
 
-        // Заработок в сутки с учетом расходов
-appData.getStatusIncome();
 
-const stringExpenses = () => {
-    let itemsExpenses = '';
-    for (let i = 0; i < appData.addExpenses.length; i++) {
-        let unitExpenses = appData.addExpenses[i] + ', ';
-        const itemUppercase = unitExpenses.charAt(0).toUpperCase();
-        unitExpenses = unitExpenses.substring(1, unitExpenses.length);
-        unitExpenses = itemUppercase + unitExpenses;
-        itemsExpenses += unitExpenses;
-    }
-    console.log(itemsExpenses);
-};
-stringExpenses();
-console.log(appData);
 
 
 
