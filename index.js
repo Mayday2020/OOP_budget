@@ -50,23 +50,25 @@ class AppData {
         return !isNaN(parseFloat(n)) && isFinite(n);
     }
     start() {
-        this.theButton();
-        this.alertPercent();
-        this.budget = +salaryAmount.value;
-        this.getExpenses();
-        this.getIncome();
-        this.getExpensesMonth();
-        this.getIncomeMonth();
-        this.getAddExpenses();
-        this.getAddIncome();
+        if (salaryAmount.value !== ''){
+            
+            this.alertPercent();
+            this.budget = +salaryAmount.value;
+            this.getExpenses();
+            this.getIncome();
+            this.getExpensesMonth();
+            this.getIncomeMonth();
+            this.getAddExpenses();
+            this.getAddIncome();
 
-        this.getInfoDeposit();
-        
-        this.getBudget();
-        this.showResult();
-        this.getTargetMonth();
-        this.getStatusIncome();
-        this.blocked();
+            this.getInfoDeposit();
+            
+            this.getBudget();
+            this.showResult();
+            this.getTargetMonth();
+            this.getStatusIncome();
+            this.blocked();
+        }
     }
     showResult() {
         budgetMonthValue.value = this.budgetMonth;
@@ -87,12 +89,7 @@ class AppData {
         
     }
     reset() {
-        document.querySelectorAll('input[type=text]').forEach((item) => {
-            item.disabled = false;
-            item.value = null;
-        });
-        cancel.style.display = 'none';
-        startButton.style.display = 'block';
+        location.reload();
     }
     addIncomeBlock() {
         const cloneIncomeItem = incomeItems[0].cloneNode(true);
@@ -187,12 +184,7 @@ class AppData {
         let titlePeriod = document.querySelector('.period-amount');
         titlePeriod.textContent = periodSelect.value;
     }
-    theButton() {
-        startButton.disabled = true;
-        if (salaryAmount.value !== '') {
-            startButton.disabled = false;
-        } 
-    }
+    
     getInfoDeposit() {
         if (this.deposit) {
             this.percentDeposit = depositPercent.value;
@@ -233,8 +225,9 @@ class AppData {
         }
     }
     EventListeners(){
+        //salaryAmount.addEventListener('input', this.theButton.bind(this));
         startButton.addEventListener('click', this.start.bind(this));
-        salaryAmount.addEventListener('input', this.theButton.bind(this));
+        
         periodSelect.addEventListener('input', this.stepPeriod.bind(this));
         expensesPlus.addEventListener('click', this.addExpensesBlock.bind(this));
         incomePlus.addEventListener('click', this.addIncomeBlock.bind(this));
